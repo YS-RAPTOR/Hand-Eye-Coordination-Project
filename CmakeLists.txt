@@ -17,12 +17,13 @@ target_include_directories(${PROJECT_NAME}
 target_link_directories(${PROJECT_NAME}
     PRIVATE External/libserialport/build_x64
     PRIVATE External/opencv/build/x64/vc15/lib
+    PRIVATE External/opencv/build/x64/vc15/bin
 )
 
 # Set target link libraries
 target_link_libraries(${PROJECT_NAME}
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/External/libserialport/build_x64/libserialport.dll.a"
-    PUBLIC opencv_world460d
+    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/External/opencv/build/x64/vc15/lib/opencv_world460d.lib"
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
