@@ -22,11 +22,10 @@ int main() {
     colors[2] = (Vec3b(255, 0, 0));   // Blue
     colors[3] = (Vec3b(0, 255, 255)); // Yellow
 
-    double thresholdDistance = 100;
+    double thresholdDistance = 200;
 
     // Read image from file
     Mat frame = imread("test.jpg");
-    frame.setTo(Scalar(0, 0, 255));
 
     Mat labelledMask = Mat::zeros(frame.size(), CV_8UC1);
 
@@ -39,13 +38,13 @@ int main() {
             if (distance < minDistance) {
                 minDistance = distance;
                 if (minDistance < thresholdDistance) {
-                    labelledMask.at<uchar>(position[0], position[1]) = i + 1;
+                    labelledMask.at<uchar>(position[0], position[1]) =
+                        (i + 1) * (255 / 5);
                 }
             }
         }
     };
 
     frame.forEach<Vec3b>(operation);
-    // Show image
-    imshow("Test", labelledMask);
+    imwrite("output.jpg", labelledMask);
 }
