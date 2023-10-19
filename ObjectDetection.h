@@ -1,3 +1,5 @@
+#pragma once
+
 #include "opencv2/core/types.hpp"
 #include "opencv2/imgproc.hpp"
 #include <string>
