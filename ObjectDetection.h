@@ -20,7 +20,7 @@ class ObjectDetection {
     // Configs
     static const int InputLocations = 10;
     static const int OutputLocations = 9;
-    static const int NUM_COLORS = 4;
+    static const int NUM_COLORS = 5;
     static const Scalar colourBounds[NUM_COLORS][2];
     static const string colourNames[NUM_COLORS];
     static const int PlayerX[2];

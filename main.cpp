@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include <vector>
 
+#include "ObjectDetection.h"
+
 using namespace cv;
 using namespace std;
 
@@ -27,37 +29,15 @@ const Scalar colourBounds[NUM_COLORS][2] = {
 const string colourNames[NUM_COLORS] = {"Red", "Green", "Blue", "Yellow"};
 
 int main() {
-    Mat bgrImage = imread("test.jpg");
-
-    Mat hsvImage;
-    cvtColor(bgrImage, hsvImage, COLOR_BGR2HSV);
-
-    Mat masks[NUM_COLORS];
-    for (int i = 0; i < NUM_COLORS; i++) {
-        if (colourBounds[i][0][0] > colourBounds[i][1][0]) {
-            Mat tempMask;
-            inRange(hsvImage, colourBounds[i][0],
-                    Scalar(180, colourBounds[i][1][1], colourBounds[i][1][2]),
-                    tempMask);
-            inRange(hsvImage,
-                    Scalar(0, colourBounds[i][0][1], colourBounds[i][0][2]),
-                    colourBounds[i][1], masks[i]);
-            bitwise_or(tempMask, masks[i], masks[i]);
-            continue;
-        }
-        inRange(hsvImage, colourBounds[i][0], colourBounds[i][1], masks[i]);
+    string folder = "../../Pictures/";
+    string file_header = "Im";
+    cout << Mat();
+    for (int i = 1; i < 10; i++) {
+        string file_name = folder + file_header + to_string(i) + ".jpg";
+        Mat bgrImage = imread(file_name);
+        ObjectDetection od;
+        od.Calibrate(bgrImage);
     }
-
-    Mat segmentedImages[NUM_COLORS];
-    for (int i = 0; i < NUM_COLORS; i++) {
-        bitwise_and(bgrImage, bgrImage, segmentedImages[i], masks[i]);
-    }
-
-    for (int i = 0; i < NUM_COLORS; i++) {
-        imshow("Segmented " + colourNames[i], segmentedImages[i]);
-    }
-
-    waitKey(0);
 
     return 0;
 }
