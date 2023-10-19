@@ -15,7 +15,7 @@ class RobotControls {
 
   private:
     int PerformCommand(int pos, bool closeGripper, bool start = true);
-    void Pause(int ms);
+    void Wait(int ms);
     static const int BAUD_RATE = 9600;
     sp_port *port;
     int err;

@@ -1,20 +1,20 @@
 #include "ObjectDetection.h"
 #include "RobotControls.h"
 #include "TicTacToe.h"
+#include <opencv2/imgcodecs.hpp>
 
 using namespace cv;
 using namespace std;
 
-/* string folder = "../../Pictures/"; */
-/* string file_header = "Im"; */
-/* cout << Mat(); */
-/* for (int i = 1; i < 10; i++) { */
-/*     string file_name = folder + file_header + to_string(i) + ".jpg"; */
-/*     Mat bgrImage = imread(file_name); */
-/*     ObjectDetection od; */
-/*     od.Calibrate(bgrImage); */
-/* } */
 int main(int argc, char *argv[]) {
+    string folder = "../../Pictures/";
+    string file_header = "Im";
+    string file_name = folder + file_header + to_string(9) + ".jpg";
+    Mat bgrImage = imread(file_name);
+    ObjectDetection od;
+    od.Calibrate(bgrImage);
+    
+    return 0;
     // HACK
     // For debugging sake, we will just have an array of 10 positions where a
     // piece will be removed from the front after each move.
@@ -40,6 +40,7 @@ int main(int argc, char *argv[]) {
 
         if (command.length() != 2 ||
             !game.isValidMove(toupper(command[0]) - 'A', command[1] - '1')) {
+
             system("cls");
             std::cout << "Invalid move. Try again.\n";
             continue;
@@ -57,6 +58,7 @@ int main(int argc, char *argv[]) {
             system("cls");
             game.displayBoard();
             std::cout << "Player " << game.getCurrentPlayer() << " wins!\n";
+
             break;
         }
 

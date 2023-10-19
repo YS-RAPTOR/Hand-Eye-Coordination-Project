@@ -5,14 +5,19 @@ project(Hand-Eye-Coordination-Project)
 set(CMAKE_CXX_STANDARD 14)
 
 # Add the executable
-add_executable(${PROJECT_NAME} main.cpp ObjectDetection.cpp TicTacToe.cpp)
+add_executable(${PROJECT_NAME} 
+    ObjectDetection.cpp 
+    TicTacToe.cpp 
+    RobotControls.cpp 
+    main.cpp
+)
 
 
 # Set include directories
 target_include_directories(${PROJECT_NAME}
-    PRIVATE ./
     PRIVATE External/libserialport
     PRIVATE External/opencv/build/include
+    PRIVATE ./
 )
 
 # Set library directories

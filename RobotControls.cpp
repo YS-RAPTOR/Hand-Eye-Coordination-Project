@@ -1,6 +1,4 @@
 #include "RobotControls.h"
-#include "libserialport.h"
-#include <chrono>
 
 RobotControls::RobotControls(int argc, char *argv[]) {
     if (argc < 2) {
@@ -24,29 +22,22 @@ RobotControls::~RobotControls() { sp_close(port); }
 int RobotControls::PerformMove(int row, int col, vector<int> pickupLocations) {
     int startPos = pickupLocations.front();
     int endPos = row * 3 + col + 11;
+    if (startPos == 3 || startPos == 9) {
+        PerformCommand(startPos, true);
+        Wait(7500);
+    } else {
+        PerformCommand(startPos, true);
+        Wait(4500);
+    }
 
-    int err = PerformCommand(startPos, true);
-    if (err != SP_OK)
-        return err;
+    PerformCommand(endPos, false);
+    Wait(4500);
 
-    Pause(2000);
+    PerformCommand(0, false);
+    Wait(4500);
 
-    err = PerformCommand(endPos, false);
-    if (err != SP_OK)
-        return err;
-
-    Pause(2000);
-
-    err = PerformCommand(0, false);
-    if (err != SP_OK)
-        return err;
-
-    Pause(500);
-
-    err = PerformCommand(0, false, false);
-    if (err != SP_OK)
-        return err;
-
+    PerformCommand(0, false, false);
+    Wait(500);
     return SP_OK;
 }
 
@@ -54,10 +45,11 @@ int RobotControls::PerformCommand(int pos, bool closeGripper, bool start) {
     char cmd = pos;
     pos |= start << 5;
     pos |= closeGripper << 6;
+    sp_blocking_write(port, &pos, 1, 100);
     return SP_OK;
 }
 
-void RobotControls::Pause(int ms) {
+void RobotControls::Wait(int ms) {
     auto target =
         std::chrono::system_clock::now() + std::chrono::milliseconds(ms);
     while (std::chrono::system_clock::now() < target) {
