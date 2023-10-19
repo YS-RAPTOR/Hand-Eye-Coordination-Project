@@ -1,7 +1,9 @@
 build
 .vscode
+.history
 .vs
 out
 *.json
 .cache
 *.bat
+
