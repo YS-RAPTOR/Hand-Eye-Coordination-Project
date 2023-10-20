@@ -7,32 +7,6 @@ using namespace cv;
 using namespace std;
 
 int main(int argc, char *argv[]) {
-
-    string file = "../../Pictures/Im10.jpg";
-    Mat f = imread(file);
-    ObjectDetection odd;
-    odd.Calibrate(f);
-    auto board = odd.GetBoard(f);
-    for (auto row : board) {
-        for (auto col : row) {
-            cout << col << " ";
-        }
-        cout << endl;
-    }
-
-    auto inputs = odd.GetPlayerObjectsInInputLocation(f);
-    auto x = get<0>(inputs);
-    auto o = get<1>(inputs);
-
-    for (auto i : x) {
-        cout << "X: " << i << endl;
-    }
-
-    for (auto i : o) {
-        cout << "O: " << i << endl;
-    }
-    return 0;
-
     Mat frame;
     VideoCapture cap(0);
 
