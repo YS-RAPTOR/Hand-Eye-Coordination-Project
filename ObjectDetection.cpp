@@ -115,24 +115,18 @@ void ObjectDetection::Calibrate(Mat &frame) {
     }
 }
 
-PlayerObjects ObjectDetection::GetPlayerObjectsInLocation(Mat &frame,
-                                                          bool isInput) {
+PlayerObjects ObjectDetection::GetPlayerObjectsInInputLocation(Mat &frame) {
     vector<int> x;
     vector<int> o;
-    auto loc = isInput ? InputLocations : OutputLocations;
 
     array<int, NUM_COLORS> colorCount = {0};
     auto mask = GetMasks(frame);
-    for (int i = 0; i < loc; i++) {
+    for (int i = 0; i < InputLocations; i++) {
         colorCount = {0};
         for (int c = 0; c < NUM_COLORS; c++) {
             // Set color count to the number of pixels in the mask at the object
             // Rectangle created in calibration
-            if (isInput) {
-                colorCount[c] = countNonZero(mask[c](InputObjects[i]));
-            } else {
-                colorCount[c] = countNonZero(mask[c](OutputObjects[i]));
-            }
+            colorCount[c] = countNonZero(mask[c](InputObjects[i]));
         }
         // Set the max color as the color of the object and add it to the
         // correct team according to the color
@@ -146,4 +140,24 @@ PlayerObjects ObjectDetection::GetPlayerObjectsInLocation(Mat &frame,
     }
 
     return PlayerObjects(x, o);
+}
+
+vector<vector<char>> ObjectDetection::GetBoard(Mat &frame) {
+    vector<vector<char>> board(3, vector<char>(3, ' '));
+    array<int, NUM_COLORS> colorCount = {0};
+    auto mask = GetMasks(frame);
+    for (int i = 0; i < OutputLocations; i++) {
+        colorCount = {0};
+        for (int c = 0; c < NUM_COLORS; c++) {
+            colorCount[c] = countNonZero(mask[c](OutputObjects[i]));
+        }
+        int maxColor = max_element(colorCount.begin(), colorCount.end()) -
+                       colorCount.begin();
+        if (maxColor == PlayerX[0] || maxColor == PlayerX[1]) {
+            board[i / 3][i % 3] = 'X';
+        } else if (maxColor == PlayerO[0] || maxColor == PlayerO[1]) {
+            board[i / 3][i % 3] = 'O';
+        }
+    }
+    return board;
 }

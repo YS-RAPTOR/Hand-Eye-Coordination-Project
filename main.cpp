@@ -7,49 +7,48 @@ using namespace cv;
 using namespace std;
 
 int main(int argc, char *argv[]) {
-    string folder = "../../Pictures/";
-    string file_header = "Im";
-    string file_name = folder + file_header + to_string(10) + ".jpg";
-    Mat bgrImage = imread(file_name);
-    ObjectDetection od;
-    od.Calibrate(bgrImage);
 
-    PlayerObjects inputs = od.GetPlayerObjectsInLocation(bgrImage, true);
+    string file = "../../Pictures/Im10.jpg";
+    Mat f = imread(file);
+    ObjectDetection odd;
+    odd.Calibrate(f);
+    auto board = odd.GetBoard(f);
+    for (auto row : board) {
+        for (auto col : row) {
+            cout << col << " ";
+        }
+        cout << endl;
+    }
+
+    auto inputs = odd.GetPlayerObjectsInInputLocation(f);
     auto x = get<0>(inputs);
     auto o = get<1>(inputs);
 
-    for (auto &i : x) {
+    for (auto i : x) {
         cout << "X: " << i << endl;
     }
-    for (auto &i : o) {
-        cout << "O: " << i << endl;
-    }
 
-    PlayerObjects outputs = od.GetPlayerObjectsInLocation(bgrImage, false);
-    auto x1 = get<0>(outputs);
-    auto o1 = get<1>(outputs);
-
-    for (auto &i : x1) {
-        cout << "X: " << i << endl;
-    }
-    for (auto &i : o1) {
+    for (auto i : o) {
         cout << "O: " << i << endl;
     }
     return 0;
 
     Mat frame;
+    VideoCapture cap(0);
 
     TicTacToe game;
     RobotControls rc(argc, argv);
     ObjectDetection od;
+    cap >> frame;
     od.Calibrate(frame);
+
     system("cls");
     while (true) {
         std::cout << "Welcome to Tic Tac Toe!\n";
-        game.displayBoard();
+        game.DisplayBoard();
         std::string command;
 
-        std::cout << "Player " << game.getCurrentPlayer()
+        std::cout << "Player " << game.GetCurrentPlayer()
                   << ", enter your move (e.g., A1) or enter Q to quit: ";
         std::getline(std::cin, command);
 
@@ -60,7 +59,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (command.length() != 2 ||
-            !game.isValidMove(toupper(command[0]) - 'A', command[1] - '1')) {
+            !game.IsValidMove(toupper(command[0]) - 'A', command[1] - '1')) {
 
             system("cls");
             std::cout << "Invalid move. Try again.\n";
@@ -68,26 +67,45 @@ int main(int argc, char *argv[]) {
         }
         int row = toupper(command[0]) - 'A';
         int col = command[1] - '1';
-        game.makeMove(row, col);
-        PlayerObjects inputs = od.GetPlayerObjectsInLocation(frame, true);
-        if (game.getCurrentPlayer() == 'X')
-            rc.PerformMove(row, col, get<0>(inputs));
-        else
-            rc.PerformMove(row, col, get<1>(inputs));
+        game.MakeMove(row, col);
 
-        if (game.checkWin(game.getCurrentPlayer())) {
+        // Capture the frame and get the player objects
+        cap >> frame;
+        PlayerObjects inputs = od.GetPlayerObjectsInInputLocation(frame);
+
+        auto x = get<0>(inputs);
+        auto o = get<1>(inputs);
+
+        if (x.size() + o.size() == od.InputLocations - game.GetMoves() - 1) {
+            cerr << "Error: Operation Failed. Missing Objects." << endl;
+            exit(-1);
+        }
+
+        if (game.GetCurrentPlayer() == 'X') {
+            rc.PerformMove(row, col, x);
+        } else {
+            rc.PerformMove(row, col, o);
+        }
+
+        auto board = od.GetBoard(frame);
+        if (!game.CheckEqual(board)) {
+            cerr << "Error: Operation Failed. Incorrect Objects." << endl;
+            exit(-1);
+        }
+
+        if (game.CheckWin(game.GetCurrentPlayer())) {
             system("cls");
-            game.displayBoard();
-            std::cout << "Player " << game.getCurrentPlayer() << " wins!\n";
+            game.DisplayBoard();
+            std::cout << "Player " << game.GetCurrentPlayer() << " wins!\n";
 
             break;
         }
 
-        game.switchPlayer();
+        game.SwitchPlayer();
 
-        if (game.getMoves() == 9) {
+        if (game.GetMoves() == 9) {
             system("cls");
-            game.displayBoard();
+            game.DisplayBoard();
             std::cout << "It's a draw!\n";
             break;
         }

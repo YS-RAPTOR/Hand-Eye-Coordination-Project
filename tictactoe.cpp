@@ -3,7 +3,7 @@
 TicTacToe::TicTacToe()
     : board(3, vector<char>(3, ' ')), currentPlayer('X'), moves(0) {}
 
-void TicTacToe::displayBoard() const {
+void TicTacToe::DisplayBoard() const {
     cout << "   1   2   3\n";
     for (int i = 0; i < 3; ++i) {
         char rowLabel = 'A' + i;
@@ -19,7 +19,7 @@ void TicTacToe::displayBoard() const {
     }
 }
 
-bool TicTacToe::checkWin(char player) const {
+bool TicTacToe::CheckWin(char player) const {
     for (int i = 0; i < 3; ++i) {
         if (board[i][0] == player && board[i][1] == player &&
             board[i][2] == player)
@@ -35,20 +35,24 @@ bool TicTacToe::checkWin(char player) const {
     return false;
 }
 
-bool TicTacToe::isValidMove(int row, int col) const {
+bool TicTacToe::IsValidMove(int row, int col) const {
     return (row >= 0 && row < 3 && col >= 0 && col < 3 &&
             board[row][col] == ' ');
 }
 
-void TicTacToe::makeMove(int row, int col) {
+void TicTacToe::MakeMove(int row, int col) {
     board[row][col] = currentPlayer;
     ++moves;
 }
 
-void TicTacToe::switchPlayer() {
+void TicTacToe::SwitchPlayer() {
     currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
 }
 
-char TicTacToe::getCurrentPlayer() const { return currentPlayer; }
+char TicTacToe::GetCurrentPlayer() const { return currentPlayer; }
 
-int TicTacToe::getMoves() const { return moves; }
+int TicTacToe::GetMoves() const { return moves; }
+
+bool TicTacToe::CheckEqual(vector<vector<char>> otherBoard) const {
+    return board == otherBoard;
+}

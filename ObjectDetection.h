@@ -16,7 +16,7 @@ using namespace std;
 typedef tuple<vector<int>, vector<int>> PlayerObjects;
 
 class ObjectDetection {
-  private:
+  public:
     // Configs
     static const int InputLocations = 10;
     static const int OutputLocations = 9;
@@ -29,10 +29,10 @@ class ObjectDetection {
     // Functions
     array<Mat, NUM_COLORS> GetMasks(Mat &frame);
 
-  public:
     Rect InputObjects[InputLocations];
     Rect OutputObjects[OutputLocations];
 
-    PlayerObjects GetPlayerObjectsInLocation(Mat &frame, bool isInput);
+    PlayerObjects GetPlayerObjectsInInputLocation(Mat &frame);
+    vector<vector<char>> GetBoard(Mat &frame);
     void Calibrate(Mat &frame);
 };
