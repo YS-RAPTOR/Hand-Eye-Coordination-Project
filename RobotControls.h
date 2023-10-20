@@ -14,6 +14,7 @@ class RobotControls {
     int PerformMove(int row, int col, vector<int> pickupLocations);
 
   private:
+    static const int Delays[10];
     int PerformCommand(int pos, bool closeGripper, bool start = true);
     void Wait(int ms);
     static const int BAUD_RATE = 9600;

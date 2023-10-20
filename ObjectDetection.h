@@ -4,6 +4,7 @@
 #include "opencv2/core/types.hpp"
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgproc.hpp"
+#include <iostream>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -15,11 +16,6 @@ using namespace std;
 typedef tuple<vector<int>, vector<int>> PlayerObjects;
 
 class ObjectDetection {
-  public:
-    PlayerObjects GetPlayerObjectsInInputLocations(Mat &frame);
-    PlayerObjects GetPlayerObjectsInOutputLocations(Mat &frame);
-    void Calibrate(Mat &frame);
-
   private:
     // Configs
     static const int InputLocations = 10;
@@ -29,7 +25,14 @@ class ObjectDetection {
     static const string colourNames[NUM_COLORS];
     static const int PlayerX[2];
     static const int PlayerO[2];
-    // Variables
+    static const int YLocation2Index[5];
+    // Functions
+    array<Mat, NUM_COLORS> GetMasks(Mat &frame);
+
+  public:
     Rect InputObjects[InputLocations];
     Rect OutputObjects[OutputLocations];
+
+    PlayerObjects GetPlayerObjectsInLocation(Mat &frame, bool isInput);
+    void Calibrate(Mat &frame);
 };

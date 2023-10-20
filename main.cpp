@@ -9,19 +9,40 @@ using namespace std;
 int main(int argc, char *argv[]) {
     string folder = "../../Pictures/";
     string file_header = "Im";
-    string file_name = folder + file_header + to_string(9) + ".jpg";
+    string file_name = folder + file_header + to_string(10) + ".jpg";
     Mat bgrImage = imread(file_name);
     ObjectDetection od;
     od.Calibrate(bgrImage);
-    
+
+    PlayerObjects inputs = od.GetPlayerObjectsInLocation(bgrImage, true);
+    auto x = get<0>(inputs);
+    auto o = get<1>(inputs);
+
+    for (auto &i : x) {
+        cout << "X: " << i << endl;
+    }
+    for (auto &i : o) {
+        cout << "O: " << i << endl;
+    }
+
+    PlayerObjects outputs = od.GetPlayerObjectsInLocation(bgrImage, false);
+    auto x1 = get<0>(outputs);
+    auto o1 = get<1>(outputs);
+
+    for (auto &i : x1) {
+        cout << "X: " << i << endl;
+    }
+    for (auto &i : o1) {
+        cout << "O: " << i << endl;
+    }
     return 0;
-    // HACK
-    // For debugging sake, we will just have an array of 10 positions where a
-    // piece will be removed from the front after each move.
-    vector<int> pickupLocations = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+    Mat frame;
+
     TicTacToe game;
     RobotControls rc(argc, argv);
-
+    ObjectDetection od;
+    od.Calibrate(frame);
     system("cls");
     while (true) {
         std::cout << "Welcome to Tic Tac Toe!\n";
@@ -48,11 +69,11 @@ int main(int argc, char *argv[]) {
         int row = toupper(command[0]) - 'A';
         int col = command[1] - '1';
         game.makeMove(row, col);
-        rc.PerformMove(row, col, pickupLocations);
-
-        // HACK
-        // Removes the front element from the vector
-        pickupLocations.erase(pickupLocations.begin());
+        PlayerObjects inputs = od.GetPlayerObjectsInLocation(frame, true);
+        if (game.getCurrentPlayer() == 'X')
+            rc.PerformMove(row, col, get<0>(inputs));
+        else
+            rc.PerformMove(row, col, get<1>(inputs));
 
         if (game.checkWin(game.getCurrentPlayer())) {
             system("cls");

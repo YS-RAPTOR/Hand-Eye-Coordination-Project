@@ -1,5 +1,18 @@
 #include "RobotControls.h"
 
+const int RobotControls::Delays[10] = {
+    4500, // 1
+    4500, // 2
+    7500, // 3
+    4500, // 4
+    4500, // 5
+    4500, // 6
+    4500, // 7
+    7500, // 8
+    4500, // 9
+    4500, // 10
+};
+
 RobotControls::RobotControls(int argc, char *argv[]) {
     if (argc < 2) {
         fprintf(stderr, " Port use\n");
@@ -22,13 +35,9 @@ RobotControls::~RobotControls() { sp_close(port); }
 int RobotControls::PerformMove(int row, int col, vector<int> pickupLocations) {
     int startPos = pickupLocations.front();
     int endPos = row * 3 + col + 11;
-    if (startPos == 3 || startPos == 9) {
-        PerformCommand(startPos, true);
-        Wait(7500);
-    } else {
-        PerformCommand(startPos, true);
-        Wait(4500);
-    }
+
+    PerformCommand(startPos, true);
+    Wait(Delays[startPos + 1]);
 
     PerformCommand(endPos, false);
     Wait(4500);
@@ -37,7 +46,7 @@ int RobotControls::PerformMove(int row, int col, vector<int> pickupLocations) {
     Wait(4500);
 
     PerformCommand(0, false, false);
-    Wait(500);
+    Wait(4500);
     return SP_OK;
 }
 
