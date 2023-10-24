@@ -2,18 +2,33 @@
 #include "RobotControls.h"
 #include "TicTacToe.h"
 #include <opencv2/imgcodecs.hpp>
+#include <thread>
 
 using namespace cv;
 using namespace std;
 
+void DisplayVideoStream(VideoCapture cap, Mat &frame, Mutex &mutex) {
+    while (true) {
+        mutex.lock();
+        cap >> frame;
+        mutex.unlock();
+        imshow("Video Stream", frame);
+    }
+}
+
 int main(int argc, char *argv[]) {
     Mat frame;
+    Mat processedFrame;
     VideoCapture cap(0);
 
     TicTacToe game;
     RobotControls rc(argc, argv);
     ObjectDetection od;
-    cap >> frame;
+
+    Mutex frameLock;
+    thread videoStream(DisplayVideoStream, cap, ref(frame), ref(frameLock));
+
+    rc.Wait(1000);
     od.Calibrate(frame);
 
     system("cls");
@@ -44,8 +59,11 @@ int main(int argc, char *argv[]) {
         game.MakeMove(row, col);
 
         // Capture the frame and get the player objects
-        cap >> frame;
-        PlayerObjects inputs = od.GetPlayerObjectsInInputLocation(frame);
+        frameLock.lock();
+        processedFrame = frame.clone();
+        frameLock.unlock();
+        PlayerObjects inputs =
+            od.GetPlayerObjectsInInputLocation(processedFrame);
 
         auto x = get<0>(inputs);
         auto o = get<1>(inputs);
@@ -61,7 +79,11 @@ int main(int argc, char *argv[]) {
             rc.PerformMove(row, col, o);
         }
 
-        auto board = od.GetBoard(frame);
+        frameLock.lock();
+        processedFrame = frame.clone();
+        frameLock.unlock();
+
+        auto board = od.GetBoard(processedFrame);
         if (!game.CheckEqual(board)) {
             cerr << "Error: Operation Failed. Incorrect Objects." << endl;
             exit(-1);
