@@ -12,7 +12,7 @@ class RobotControls {
     RobotControls(int argc, char *argv[]);
     ~RobotControls();
     int PerformMove(int row, int col, vector<int> pickupLocations);
-    void Wait(int ms);
+    static void Wait(int ms);
 
   private:
     static const int Delays[10];

@@ -7,30 +7,43 @@
 using namespace cv;
 using namespace std;
 
-void DisplayVideoStream(VideoCapture cap, Mat &frame, Mutex &mutex) {
+Mat frame;
+mutex frameLock;
+
+void DisplayVideoStream(VideoCapture cap) {
+    string windowsName = "Video Stream";
+    namedWindow(windowsName);
     while (true) {
-        mutex.lock();
-        cap >> frame;
-        mutex.unlock();
+        {
+            std::lock_guard<std::mutex> lock(frameLock);
+            cap >> frame;
+        }
+
         imshow("Video Stream", frame);
+        char key = (char)waitKey(25);
+        RobotControls::Wait(25);
     }
 }
 
 int main(int argc, char *argv[]) {
-    Mat frame;
-    Mat processedFrame;
     VideoCapture cap(0);
+    Mat processedFrame;
+
+    if (!cap.isOpened()) {
+        cout << "cannot open camera";
+    }
 
     TicTacToe game;
-    RobotControls rc(argc, argv);
     ObjectDetection od;
 
-    Mutex frameLock;
-    thread videoStream(DisplayVideoStream, cap, ref(frame), ref(frameLock));
-
-    rc.Wait(1000);
-    od.Calibrate(frame);
-
+    thread videoStream(DisplayVideoStream, cap);
+    RobotControls::Wait(1000);
+    {
+        std::lock_guard<std::mutex> lock(frameLock);
+        processedFrame = frame.clone();
+    }
+    od.Calibrate(processedFrame);
+    RobotControls rc(argc, argv);
     system("cls");
     while (true) {
         std::cout << "Welcome to Tic Tac Toe!\n";
@@ -59,9 +72,10 @@ int main(int argc, char *argv[]) {
         game.MakeMove(row, col);
 
         // Capture the frame and get the player objects
-        frameLock.lock();
-        processedFrame = frame.clone();
-        frameLock.unlock();
+        {
+            std::lock_guard<std::mutex> lock(frameLock);
+            processedFrame = frame.clone();
+        }
         PlayerObjects inputs =
             od.GetPlayerObjectsInInputLocation(processedFrame);
 
@@ -79,9 +93,10 @@ int main(int argc, char *argv[]) {
             rc.PerformMove(row, col, o);
         }
 
-        frameLock.lock();
-        processedFrame = frame.clone();
-        frameLock.unlock();
+        {
+            std::lock_guard<std::mutex> lock(frameLock);
+            processedFrame = frame.clone();
+        }
 
         auto board = od.GetBoard(processedFrame);
         if (!game.CheckEqual(board)) {
