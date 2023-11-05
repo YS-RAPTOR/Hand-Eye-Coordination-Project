@@ -1,16 +1,18 @@
 #include "RobotControls.h"
+#include <iostream>
+
 
 const int RobotControls::Delays[10] = {
     4500, // 1
     4500, // 2
     7500, // 3
     4500, // 4
-    4500, // 5
+    5000, // 5
     4500, // 6
     4500, // 7
     7500, // 8
     4500, // 9
-    4500, // 10
+    5000, // 10
 };
 
 RobotControls::RobotControls(int argc, char *argv[]) {
@@ -37,13 +39,13 @@ int RobotControls::PerformMove(int row, int col, vector<int> pickupLocations) {
     int endPos = row * 3 + col + 11;
 
     PerformCommand(startPos, true);
-    Wait(Delays[startPos + 1]);
+    Wait(Delays[startPos - 1]);
 
     PerformCommand(endPos, false);
     Wait(4500);
 
     PerformCommand(0, false);
-    Wait(4500);
+    Wait(6000);
 
     PerformCommand(0, false, false);
     Wait(4500);

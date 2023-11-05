@@ -132,6 +132,11 @@ PlayerObjects ObjectDetection::GetPlayerObjectsInInputLocation(Mat &frame) {
         // correct team according to the color
         int maxColor = max_element(colorCount.begin(), colorCount.end()) -
                        colorCount.begin();
+
+        if (colorCount[maxColor] <= 50) {
+            continue;
+        }
+
         if (maxColor == PlayerX[0] || maxColor == PlayerX[1]) {
             x.push_back(i + 1);
         } else if (maxColor == PlayerO[0] || maxColor == PlayerO[1]) {

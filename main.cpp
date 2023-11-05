@@ -9,11 +9,12 @@ using namespace std;
 
 Mat frame;
 mutex frameLock;
+bool runStream = true;
 
 void DisplayVideoStream(VideoCapture cap) {
     string windowsName = "Video Stream";
     namedWindow(windowsName);
-    while (true) {
+    while (runStream) {
         {
             std::lock_guard<std::mutex> lock(frameLock);
             cap >> frame;
@@ -37,7 +38,7 @@ int main(int argc, char *argv[]) {
     ObjectDetection od;
 
     thread videoStream(DisplayVideoStream, cap);
-    RobotControls::Wait(1000);
+    RobotControls::Wait(5000);
     {
         std::lock_guard<std::mutex> lock(frameLock);
         processedFrame = frame.clone();
@@ -56,7 +57,7 @@ int main(int argc, char *argv[]) {
 
         if (command.length() == 1 && toupper(command[0]) == 'Q') {
             system("cls");
-            std::cout << "Good Bye!";
+            std::cout << "Good Bye!\n";
             break;
         }
 
@@ -82,11 +83,6 @@ int main(int argc, char *argv[]) {
         auto x = get<0>(inputs);
         auto o = get<1>(inputs);
 
-        if (x.size() + o.size() == od.InputLocations - game.GetMoves() - 1) {
-            cerr << "Error: Operation Failed. Missing Objects." << endl;
-            exit(-1);
-        }
-
         if (game.GetCurrentPlayer() == 'X') {
             rc.PerformMove(row, col, x);
         } else {
@@ -96,12 +92,6 @@ int main(int argc, char *argv[]) {
         {
             std::lock_guard<std::mutex> lock(frameLock);
             processedFrame = frame.clone();
-        }
-
-        auto board = od.GetBoard(processedFrame);
-        if (!game.CheckEqual(board)) {
-            cerr << "Error: Operation Failed. Incorrect Objects." << endl;
-            exit(-1);
         }
 
         if (game.CheckWin(game.GetCurrentPlayer())) {
@@ -122,5 +112,7 @@ int main(int argc, char *argv[]) {
         }
         system("cls");
     }
+    runStream = false;
+    videoStream.join();
     return 0;
 }

@@ -3,6 +3,7 @@ MODULE MainModule
 	VAR byte c:=0;
 	PROC main()
 		MoveJ [[230.47,31.63,244.70],[0.00873776,-0.0468926,0.998859,-0.00232724],[0,-1,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v1000, z50, tool0;
+        gripper;
 		WHILE TRUE DO
 			WaitDI DI10_14, 1;
 			c := 0;
